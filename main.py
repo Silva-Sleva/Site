@@ -1,9 +1,24 @@
 from flask import Flask, request, url_for, render_template, redirect
 
-from data.loginform import LoginForm
+from data import db_session
+from data.user import User
+from forms.loginform import LoginForm
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = 'yandexlyceum_secret_key'
+
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    form = LoginForm()
+    if form.validate_on_submit():
+        return redirect('/success')
+    return render_template('login.html', title='Авторизация', form=form)
+
+
+@app.route('/success')
+def success():
+    return 'успех'
 
 
 @app.route('/')
@@ -16,18 +31,33 @@ def image_mars():
     return render_template('image_mars.html', title='Миссия Колонизация Марса')
 
 
+@app.route('/list_prof/<listt>')
+def profs(listt):
+    lst = ['инженер-исследователь', 'пилот', 'строитель',
+           'экзобиолог', 'врач', 'инженер по терраформированию',
+           'климатолог', 'специалист по радиационной защите', 'астрогеолог', 'гляциолог',
+           'инженер жизнеобеспечения', 'метеоролог', 'оператор марсохода', 'киберинженер',
+           'штурман', 'пилот дронов']
+    return render_template('prof.html', prof=lst, listype=listt)
+
+
 @app.route('/index')
 def index():
     return render_template('base.html', title='Миссия Колонизация Марса')
 
 
-@app.route('/load_photo', methods=['POST', 'GET'])
+@app.route('/training/<prof>')
+def training(prof):
+    return render_template('training.html', prof=prof)
+
+
+@app.route('/load_foto', methods=['POST', 'GET'])
 def load_photo():
-    if request.method == "GET":
+    if request.method == 'GET':
         return render_template('load_photo.html')
     elif request.method == 'POST':
-        photo = request.files['file']
-        with open('static/img/img.jpg', mode="wb") as f:
+        photo = request.files['file']  # получение файла
+        with open('static/img/img.jpg', mode='wb') as f:
             f.write(photo.read())
         return render_template('show_photo.html')
 
@@ -120,33 +150,53 @@ def form_sample():
         }"""
 
 
-@app.route('/list_prof/<listt>')
-def profs(listt):
-    lst = ['инженер-исследователь', 'пилот', 'строитель', 'экзобиолог', 'врач',
-           'инженер по терраформированию', 'климатолог',
-           'специалист по радиационной защите', 'астрогеолог', 'гляциолог',
-           'инженер жизнеобеспечения', 'метеоролог', 'оператор марсохода', 'киберинженер', 'штурман', 'пилот дронов']
+def add_user():
+    sess = db_session.create_session()
+    user = User()
+    user.name = 'Dart'
+    user.surname = 'Weider'
+    user.age = 71
+    user.position = 'canon master'
+    user.speciality = "sword master"
+    user.address = "module_2"
+    user.email = "Chernish@mars.org"
+    user.hashed_password = "dart"
+    sess.add(user)
+    sess.commit()
+    sess.close()
+    sess = db_session.create_session()
+    user = User()
+    user.name = 'Buzz'
+    user.surname = 'Lightyear'
+    user.age = 31
+    user.position = 'pilot'
+    user.speciality = "pilot"
+    user.address = "module_1"
+    user.email = "svetik@mars.org"
+    user.hashed_password = "buzz"
+    sess.add(user)
+    sess.commit()
+    sess.close()
+    sess = db_session.create_session()
+    user = User()
+    user.name = 'Ridley'
+    user.surname = 'Scott'
+    user.age = 21
+    user.position = 'captain'
+    user.speciality = "research engineer"
+    user.address = "module_1"
+    user.email = "scott_chief@mars.org"
+    user.hashed_password = "cap"
+    sess.add(user)
+    sess.commit()
+    sess.close()
 
-    return render_template('prof.html', prof=lst, listype=listt)
 
-
-@app.route('/login', methods=['GET', 'POST'])
-def login():
-    form = LoginForm()
-    if form.validate_on_submit():
-        return redirect('/success')
-    return render_template('login.html', title='Авторизация', form=form)
-
-
-@app.route('/success')
-def success():
-    return 'успех'
-
-
-@app.route('/training/<prof>')
-def training(prof):
-    return render_template('training.html', prof=prof)
+def main():
+    db_session.global_init("db/blogs.db")
+    add_user()
+    app.run(port=8080, host='127.0.0.1')
 
 
 if __name__ == '__main__':
-    app.run(port=8080, host='127.0.0.1', debug=True)
+    main()
