@@ -2,12 +2,11 @@
 {% block content %}
 <h1>Загрузка фото</h1>
 <form method="post" enctype="multipart/form-data">
-<div class="form-group">
-    <label for="photo">Выберите файл</label>
-    <input type="file" class="form-control-file" id="photo" name="file">
-</div>
-<button type="sumbit" class="btn btn-primary">Отправить</button>
+    <div class="form-group">
+        <label for="photo">Выберите файл</label>
+        <input type="file" class="form-control-file" id="photo" name="file">
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
 </form>
-<img src="static/img/img.jpg">
-
+<img src="/static/img/img.jpg">
 {% endblock %}
