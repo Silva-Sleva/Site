@@ -1,7 +1,9 @@
 from flask import Flask, request, url_for, render_template, redirect
 
 from data import db_session
+from data.db_session import global_init, create_session
 from data.user import User
+from data.jobs import Jobs
 from forms.loginform import LoginForm
 
 app = Flask(__name__)
@@ -192,9 +194,38 @@ def add_user():
     sess.close()
 
 
+def add_job():
+    job = Jobs()
+    job.team_leader = 1
+    job.job = 'deployment of residential modules 1 and 2'
+    job.work_size = 15
+    job.collaborators = '2, 3'
+    job.is_finished = False
+    sess = db_session.create_session()
+    sess.add(job)
+    sess.commit()
+    sess.close()
+
+
+@app.route('/logs')
+def loqs():
+    # # db_name = input()
+    # # global_init(db_name)
+    # # sess = create_session()
+    sess = db_session.create_session()
+    # user = sess.query(User).filter((User.address == 'module_1'),
+    #                                (User.speciality.notlike("%engineer%")),
+    #                                (User.position.notlike("%engineer%"))).all()
+
+    jobs = sess.query(Jobs).all()
+    return render_template('table_logs.html', jobs=jobs)
+
+
+
 def main():
     db_session.global_init("db/blogs.db")
-    add_user()
+    # add_user()
+    # add_job()
     app.run(port=8080, host='127.0.0.1')
 
 
