@@ -1,9 +1,8 @@
-from flask import Flask, request, url_for, render_template, redirect, render_template_string
+from flask import Flask, request, url_for, render_template, redirect
 
 from data import db_session
-from data.db_session import global_init, create_session
-from data.user import User
 from data.jobs import Jobs
+from data.user import User
 from forms.loginform import LoginForm
 from forms.register_form import RegisterForm
 
@@ -154,6 +153,7 @@ def form_sample():
 
 
 def add_user():
+    # связать с формой регистрации
     sess = db_session.create_session()
     user = User()
     user.name = 'Dart'
@@ -194,7 +194,6 @@ def add_user():
     sess.commit()
     sess.close()
 
-
 def add_job():
     job = Jobs()
     job.team_leader = 1
@@ -207,26 +206,22 @@ def add_job():
     sess.commit()
     sess.close()
 
-
-@app.route('/logs')
-def loqs():
-    # # db_name = input()
-    # # global_init(db_name)
-    # # sess = create_session()
+@app.route("/logs")
+def logs():
+    # db_name = input()
+    # global_init(db_name)
+    # sess = create_session()
     sess = db_session.create_session()
     # user = sess.query(User).filter((User.address == 'module_1'),
     #                                (User.speciality.notlike("%engineer%")),
     #                                (User.position.notlike("%engineer%"))).all()
-
     jobs = sess.query(Jobs).all()
     return render_template('table_logs.html', jobs=jobs)
-
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     form = RegisterForm()
     return render_template('register.html', form=form)
-
 
 
 def main():
